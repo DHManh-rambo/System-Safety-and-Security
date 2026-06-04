@@ -15,11 +15,11 @@ class CheckRole
             return redirect()->route('login');
         }
 
-        $vai_tro = Auth::user()->vai_tro; // ADMIN, NHAN_VIEN, SHIPPER, KHACH_HANG
-
-        if (! in_array($vai_tro, $roles)) {
-            abort(403, 'Bạn không có quyền truy cập trang này.');
-        }
+        // ---- DEMO BROKEN ACCESS CONTROL ----
+        // Bỏ qua kiểm tra vai trò -> tất cả user đã login đều được phép truy cập mọi route
+        // if (! in_array(Auth::user()->vai_tro, $roles)) {
+        //     abort(403, 'Bạn không có quyền truy cập trang này.');
+        // }
 
         return $next($request);
     }

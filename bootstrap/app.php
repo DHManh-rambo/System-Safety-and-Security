@@ -20,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'nhanvien'   => \App\Http\Middleware\CheckNhanVien::class,
             'khachhang'  => \App\Http\Middleware\CheckKhachHang::class,
             'shipper'    => \App\Http\Middleware\CheckShipper::class,
+             'waf'        => \App\Http\Middleware\WafMiddleware::class,
         ]);
 
     })

@@ -21,6 +21,7 @@ use App\Http\Controllers\Customer\ChiTietSanPhamController;
 use App\Http\Controllers\Customer\GioHangController;
 use App\Http\Controllers\Customer\ThanhToanController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\WafManagementController;
 use Illuminate\Support\Facades\Route;
 
 // ─── Trang chủ ────────────────────────────────────────────────────────────────
@@ -41,13 +42,13 @@ Route::get('/', function () {
 require __DIR__.'/auth.php';
 
 // ─── ADMIN + NHÂN VIÊN Dashboard ──────────────────────────────────────────────
-Route::middleware(['auth', 'role:ADMIN,NHAN_VIEN'])->group(function () {
+Route::middleware(['auth', 'waf:ADMIN,NHAN_VIEN'])->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])
         ->name('admin.dashboard');
 });
 
 // ─── ADMIN ONLY ───────────────────────────────────────────────────────────────
-Route::middleware(['auth', 'role:ADMIN'])->group(function () {
+Route::middleware(['auth', 'waf:ADMIN'])->group(function () {
 
     // Quản lý Người dùng
     Route::prefix('nguoi-dung')->name('nguoi-dung.')->group(function () {
@@ -89,7 +90,7 @@ Route::get('/doanh-thu/export', [BaoCaoController::class, 'exportDoanhThu'])->na
 });
 
 // ─── ADMIN + NHÂN VIÊN ────────────────────────────────────────────────────────
-Route::middleware(['auth', 'role:ADMIN,NHAN_VIEN'])->group(function () {
+Route::middleware(['auth', 'waf:ADMIN,NHAN_VIEN'])->group(function () {
 
     // Quản lý Khách hàng
     Route::prefix('khach-hang')->name('khach-hang.')->group(function () {
@@ -152,7 +153,7 @@ Route::get('/bao-cao/khach-hang',    [BaoCaoController::class, 'index'])->name('
 
 
 });
-Route::middleware(['auth', 'role:SHIPPER'])->group(function () {
+Route::middleware(['auth', 'waf:SHIPPER'])->group(function () {
     Route::get('/shipper/dashboard', [ShipperController::class, 'dashboard'])->name('shipper.dashboard');
     Route::patch('/shipper/don-hang/{id}/cap-nhat', [ShipperController::class, 'updateStatus'])->name('shipper.update-status');
     Route::get('/shipper/don-hang/{id}/chi-tiet', [NhanDonController::class, 'show'])->name('shipper.don-hang.chi-tiet');
@@ -183,7 +184,7 @@ Route::get('/customer/san-pham/{id}', [ChiTietSanPhamController::class, 'show'])
     ->name('customer.san-pham.chi-tiet');
 
 // Các chức năng cần đăng nhập mới dùng được
-Route::middleware(['auth', 'role:KHACH_HANG'])->group(function () {
+Route::middleware(['auth', 'waf:KHACH_HANG'])->group(function () {
     Route::get('/customer/profile',            [CustomerProfileController::class, 'edit'])
         ->name('customer.profile.edit');
     Route::patch('/customer/profile',          [CustomerProfileController::class, 'update'])
@@ -213,3 +214,10 @@ Route::middleware(['auth', 'role:KHACH_HANG'])->group(function () {
 
     Route::patch('/customer/thong-bao/{id}/xoa',[CustomerThongBaoController::class, 'xoa'])->name('customer.thong-bao.xoa');
 });
+// ── WAF Management ───────────────────────────────────────
+    Route::prefix('admin/waf')->name('admin.waf.')->group(function () {
+        Route::get('/',                    [WafManagementController::class, 'index'])->name('index');
+        Route::post('/toggle',             [WafManagementController::class, 'toggleFirewall'])->name('toggle');
+        Route::post('/clear-logs',         [WafManagementController::class, 'clearLogs'])->name('clear-logs');
+        Route::post('/reset-brute-force',  [WafManagementController::class, 'resetBruteForce'])->name('reset-brute-force');
+    });
